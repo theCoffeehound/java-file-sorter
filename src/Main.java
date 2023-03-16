@@ -1,11 +1,8 @@
 import java.io.*;
 import java.io.File;
-import java.nio.channels.FileLockInterruptionException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -13,10 +10,11 @@ import java.util.stream.Collectors;
 
 //  TODO:
 //
-//  - Make directories  *DONE*
-//  - Listing           *DONE*
-//  - Sorting           **
-//  - Moving            **
+//  - Make directories      *DONE*
+//  - Listing               *DONE*
+//  - Sorting               *DONE*
+//  - Moving                *DONE*
+//  - Add more file types   **
 
 
 public class Main {
@@ -58,11 +56,14 @@ public class Main {
                     case 1:
                         System.out.println("Listing your files.");
                         try{
+                            //  Pistää tietdosto File tyyppiseen listaan
                             List<File> files = Files.list(Paths.get(path))
                                     .map(Path::toFile)
                                     .filter(File::isFile)
                                     .collect(Collectors.toList());
                             files.forEach(System.out::println);
+
+                            //  Pistää kansiot Listaan
                             List<File> folders = Files.list(Paths.get(path))
                                     .map(Path::toFile)
                                     .filter(File::isDirectory)
@@ -76,7 +77,7 @@ public class Main {
 
                     case 2:
                         String[] folders = new String[4];
-                        folders[0] = "/photos/";
+                        folders[0] = "/images/";
                         folders[1] = "/videos/";
                         folders[2] = "/gifs/";
                         folders[3] = "/documents/";
@@ -98,6 +99,55 @@ public class Main {
 
                     case 3:
                         System.out.println("Organizing your files.");
+
+                        //  Hakee tiedostot listaan
+                        List<File> files = Files.list(Paths.get(path))
+                                .map(Path::toFile)
+                                .filter(File::isFile)
+                                .collect(Collectors.toList());
+
+                        //  Käy tiedostot läpi                  +
+                        //  Tarkistaa tiedostopäätteen          +
+                        //  Vie päätteen mukaiseen kansioon     +
+
+
+                        for (File file: files) {
+
+                            System.out.println(file);
+
+                            String nimi = file.toString();
+                            String extension = "";
+
+                            int i = nimi.lastIndexOf('.');
+                            int p = Math.max(nimi.lastIndexOf('/'), nimi.lastIndexOf('\\'));
+
+                            if (i > p) {
+                                extension = nimi.substring(i+1);
+                                System.out.println(extension);
+
+                                if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png") || extension.equals("webp")){
+                                    String tiedoston_nimi = file.getName();
+                                    String destonation = path + "\\images\\" + tiedoston_nimi;
+
+                                    Files.move(Path.of(nimi), Path.of(destonation));
+                                } else if (extension.equals("gif")) {
+                                    String tiedoston_nimi = file.getName();
+                                    String destination = path + "\\gifs\\" + tiedoston_nimi;
+
+                                    Files.move(Path.of(nimi), Path.of(destination));
+                                } else if (extension.equals("mp4") || extension.equals("mov") || extension.equals("mkv")) {
+                                    String tiedoston_nimi = file.getName();
+                                    String destination = path + "\\videos\\" + tiedoston_nimi;
+
+                                    Files.move(Path.of(nimi), Path.of(destination));
+                                }else if (extension.equals("docx") || extension.equals("txt") || extension.equals("rtf") || extension.equals("pdf") ||extension.equals("pptx") || extension.equals("xlsx") || extension.equals("xls") || extension.equals("csv")) {
+                                    String tiedoston_nimi = file.getName();
+                                    String destination = path + "\\documents\\" + tiedoston_nimi;
+
+                                    Files.move(Path.of(nimi), Path.of(destination));
+                                }
+                            }
+                        }
 
                         break;
                     case 4:
